@@ -332,3 +332,57 @@ public:
     }
 };
 ```
+
+### 5. [不同路径II](https://leetcode.cn/problems/unique-paths-ii/) 2023.11.1
+
+1. 状态表示
+
+    dp[i][j] 表示走到i，j位置时所有的方式
+
+2. 状态转移方程
+
+    dp[i][j] 由dp[i-1][j]或者dp[i][j-1]走过来
+
+    但是要考虑障碍物，严格按照我们前面的定义，显然有障碍物的格子是走不过来的，所以如果[i,j]上面有障碍物，则把dp[i][j]置为0
+
+    dp[i][j] = dp[i-1][j] + dp[i][j-1] if obstacle[i-1][j-1] = 0 （此处考虑了虚拟节点的映射）
+
+    dp[i][j] = dp[i-1][j] + dp[i][j-1] if obstacle[i-1][j-1] = 1
+
+
+3. 初始化
+
+    依旧增加虚拟节点，注意初始化有个虚拟节点要初始化为0
+
+    同时对于有障碍物的节点，要初始化dp值为0
+
+4. 填表顺序
+
+    从左到右，从上到下
+
+5. 返回值
+    dp[m][n]
+
+```cpp{.line-numbers}
+class Solution {
+public:
+    int uniquePathsWithObstacles(vector<vector<int>>& obstacleGrid) {
+        int row = obstacleGrid.size();
+        int col = obstacleGrid[0].size();
+        if(row == col && row == 1)
+            return obstacleGrid[0][0] == 0;
+        vector<vector<int>> dp(row + 1, vector<int>(col + 1));
+        dp[0][1] = 1;
+        for(int i = 1; i <= row; i++)
+            for(int j = 1; j <= col; j++)
+            {
+                if(obstacleGrid[i-1][j-1] == 0)
+                    dp[i][j] = dp[i-1][j] + dp[i][j-1];
+                else
+                    dp[i][j] = 0;
+            }
+
+        return dp[row][col];
+    }
+};
+```
