@@ -386,3 +386,60 @@ public:
     }
 };
 ```
+
+### 6.[礼物的最大价值](https://leetcode.cn/problems/li-wu-de-zui-da-jie-zhi-lcof/) 2023.11.2
+
+1. 状态表示
+
+    dp[i,j]到[i,j]位置时拿礼物的最大价值
+
+2. 状态转移方程
+
+    考虑到虚拟节点！注意和dp表的下标映射
+
+    dp[i][j] = max(dp[i-1][j] + dp[i][j-1]) + frame[i-1][j-1]
+
+3. 初始化
+
+    显然只要全为0即可
+
+4. 填表顺序
+
+    左到右，上到下
+
+5. 返回值
+
+    dp[row][col]
+
+
+
+```cpp{.line-numbers}
+class Solution {
+public:
+    int jewelleryValue(vector<vector<int>>& frame) {
+        int row = frame.size();
+        int col = frame[0].size();
+        if(row == col && row == 1)  return frame[0][0];
+
+        vector<vector<int>> dp(row + 1, vector<int>(col + 1));
+        for(int i = 1; i <= row; i++)
+            for(int j = 1; j <= col; j++)
+                dp[i][j] = max(dp[i-1][j], dp[i][j-1]) + frame[i-1][j-1];
+        // for(auto& r : dp)
+        // {
+        //     for(auto& e : r)
+        //         cout << e <<" ";
+        //     cout << endl;
+        // }
+        return dp[row][col];
+    }
+};
+//frame
+// 1 3 1
+// 1 5 1
+// 4 2 1
+// dp
+// 1 4 5
+// 2 9 10
+// 6 11 12
+```
