@@ -443,3 +443,65 @@ public:
 // 2 9 10
 // 6 11 12
 ```
+
+
+### 7. [打家劫舍](https://leetcode.cn/problems/house-robber/description/?envType=study-plan-v2&envId=top-interview-150) 2023.11.2
+
+最初自己手撕的版本
+
+```cpp{.line-numbers}
+class Solution {
+public:
+    // dp[i] 偷窃到 i 号房屋(且偷窃i房屋)的金额最大值 —— 以某个位置为结尾
+    // 状态转移方程
+    // dp[i] = max(dp[0] ...  dp[i-2]) + nums[i]
+
+    // dp[0] = nums[0]
+    // dp[1] = nums[1]
+
+    // 返回值 max(dp[n-1], dp[n-2]); 偷倒数第一或者倒数第二个房屋的情况的最大值
+    // 因为要求的是偷窃的最大值，显然最大偷窃方案必然含有倒数第一或者倒数第二
+
+    int rob(vector<int>& nums) {
+        int n = nums.size();
+        if(n == 1)  return nums[0];
+        vector<int> dp(n);
+        dp[0] = nums[0];
+        dp[1] = nums[1];
+        for(int i = 2; i < n; i++)
+        {
+            int max = dp[0];
+            for(int j = 1; j <= i-2; j++)
+                if(max < dp[j])
+                    max = dp[j];
+            dp[i] = max + nums[i];
+        }
+        // for(auto& e : dp)
+        //     cout << e << " ";
+        return max(dp[n-1], dp[n-2]);
+    }
+};
+```
+
+参考了别人的题解得出更好的状态表示与状态转移方程
+
+状态表示： dp[i] 表示偷盗i家屋子时最偷窃价值，**注意 i 号屋子不一定偷**
+
+状态转移方程：dp[i] = max(dp[i-2] + nums[i], dp[i-1]) {根据i屋子偷与不偷来划分，如果偷，则i-1一定不偷，所以我们就根本不应该考虑dp[i-1]，而是只考虑dp[i-2], 所以是dp[i-2] + nums[i]，换一种角度考虑为什么不是dp[i-1] + nums[i], 因为dp[i-1]其实依赖i-1买或者不买，包含两种情况，当我们考虑偷i位置时，需要否决掉其中一个情况，而其dp[i]含两种情况，显然不符。 当我们不选择偷i时，i-1偷不偷？ 不知道！ 不确定！ 所以我们选择包含这两种情况的dp[i-1]}  —— 从中也看出，我们的状态转移方程紧紧依赖 严格遵照我们的状态表示
+
+
+```cpp{.line-numbers}
+class Solution {
+public:
+    int rob(vector<int>& nums) {
+        int n = nums.size();
+        if(n == 1)  return nums[0];
+        vector<int> dp(n);
+        dp[0] = nums[0];
+        dp[1] = max(nums[1], nums[0]);
+        for(int i = 2; i < n; i++)
+            dp[i] = max(dp[i-2] + nums[i], dp[i-1]);
+        return dp[n-1];
+    }
+};
+```
