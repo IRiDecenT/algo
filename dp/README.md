@@ -505,3 +505,58 @@ public:
     }
 };
 ```
+
+### 8. [下降路径最小和](https://leetcode.cn/problems/minimum-falling-path-sum/) 2023.11.3
+
+1. 状态表示
+
+    dp[i][j] 表示到i,j位置时的最小下降路径
+
+2. 状态转移方程
+
+    注意结合了虚拟节点的映射关系
+
+    dp[i][j] = min(dp[i-1][j-1], dp[i-1][j], dp[i-1][j+1]) + matrix[i-1][j-1]
+
+3. 初始化
+
+    为了初始化方便，以及状态转移时不考虑边界问题，我们增加头部一行，开始的左边和结尾的右边位置各增加一列（给原来的矩阵头上加个帽子😋）
+
+    此时左右边界的两列初始化为最大值，让后续选择的时候选不上就行
+
+    头部的一行设置为0，不去影响第一行dp的有效值
+
+4. 填表顺序
+
+    从左到右，从上到下
+
+5. 返回值
+
+    （掐头去尾考虑到虚拟节点）最后一行的最小值
+
+    min(dp[len + 1][1 ... len + 1])
+
+```cpp{.line-numbers}
+class Solution {
+public:
+    int minFallingPathSum(vector<vector<int>>& matrix) {
+        int len = matrix.size();
+        if(1 == len)    return matrix[0][0];
+        vector<vector<int>> dp(len + 1, vector<int>(len + 2));
+        for(int i = 0; i < len + 1; i++)
+        {
+            dp[i][0] = 1e7;
+            dp[i][len + 1] = 1e7;
+        }
+        for(int i = 1; i < len + 1; i++)
+            for(int j = 1; j < len + 1; j++)
+                dp[i][j] = min(min(dp[i-1][j-1],dp[i-1][j]), dp[i-1][j+1])
+                            + matrix[i-1][j-1];
+        int min = dp[len][1];
+        for(int i = 2; i < len + 1; i++)
+            if(min > dp[len][i])
+                min = dp[len][i];
+        return min;
+    }
+};
+```
