@@ -560,3 +560,64 @@ public:
     }
 };
 ```
+
+
+### 9. [最小路径和](https://leetcode.cn/problems/minimum-path-sum/) 2023.11.4
+
+1. 状态表示
+
+    dp[i][j]  表示走到 i, j 位置时的最短路径和
+
+2. 状态转移方程
+
+    显然根据最近的状态来，要么从左要么从上走到当前状态。显然只要两者间的最小值
+
+    考虑到虚拟节点，要维护下标的映射关系
+
+    dp[i][j] = min(dp[i-1][j], dp[i][j-1]) + grid[i-1][j-1]
+
+3. 初始化
+
+    新增一行一列的虚拟节点，且除了和dp[1][1]临接的上边和左边的格子初始化为0，其余初始化为最大值
+
+4. 填表顺序
+
+    左到右，上到下
+
+5. 返回值
+
+    dp[m][n]
+
+```cpp{.line-numbers}
+class Solution {
+public:
+    int minPathSum(vector<vector<int>>& grid) {
+        int m = grid.size();
+        int n = grid[0].size();
+
+        vector<vector<int>> dp(m + 1, vector<int>(n + 1, 1e8));
+        for(int i = 1; i <= m; i++)
+            dp[i][0] = 1e8;
+        dp[0][1] = dp[1][0];
+        for(int i = 1; i <= m; i++)
+            for(int j = 1; j <= n; j++)
+                dp[i][j] = min(dp[i-1][j], dp[i][j-1]) + grid[i-1][j-1];
+        return dp[m][n];
+    }
+};
+```
+
+
+### 10. [地下城游戏](https://leetcode.cn/problems/dungeon-game/)
+
+1. 状态表示
+
+
+
+2. 状态转移方程
+
+3. 初始化
+
+4. 填表顺序
+
+5. 返回值
