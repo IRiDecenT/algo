@@ -608,7 +608,7 @@ public:
 ```
 
 
-### 10. [地下城游戏](https://leetcode.cn/problems/dungeon-game/)
+### 10. [地下城游戏](https://leetcode.cn/problems/dungeon-game/) 2023.11.5
 
 1. 状态表示
 
@@ -662,6 +662,31 @@ public:
             }
         }
         return dp[0][0];
+    }
+};
+```
+
+### 11. [按摩师](https://leetcode.cn/problems/the-masseuse-lcci/) 2023.11.6
+
+多状态dp和打家劫舍问题一模一样！
+
+[打家劫舍问题](#7-打家劫舍-2023112)
+
+```cpp{.line-numbers}
+class Solution {
+public:
+    // 其实是打家劫舍问题
+    // dp[i] 选择到位置时总的最长预约时间（i位置可以选或者不选）
+    int massage(vector<int>& nums) {
+        int n = nums.size();
+        if(n == 0) return 0;
+        if(n == 1) return nums[0];
+        vector<int> dp(n);
+        dp[0] = nums[0];
+        dp[1] = max(nums[0], nums[1]);
+        for(int i = 2; i < n; i++)
+            dp[i] = max(dp[i-1], dp[i-2] + nums[i]);
+        return dp[n-1];
     }
 };
 ```
