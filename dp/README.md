@@ -690,3 +690,48 @@ public:
     }
 };
 ```
+
+### 12. [单词拆分](https://leetcode.cn/problems/word-break/) 2023.11.7
+
+1. 状态表示
+
+    dp[i] 表示i位置到字符串首位置，能否成功拆分
+
+2. 状态转移方程
+
+    先看最近的状态:
+    如果dp[i-1] = true, s[0, i-2]在单词字典中，则dp[i] = true
+    如果dp[i-2] = true, s[0, i-3]在单词字典中，则dp[i] = true
+    如果dp[i-3] = true, s[0, i-4]在单词字典中，则dp[i] = true
+    ...
+    显然当前状态要由前面我们推导出来的所有状态推导出来
+
+3. 初始化
+
+    为了填表的时候不越界，我们仍然使用虚拟节点，i=0时会越界，我们在头部多开一个位置，我们只需要把虚拟节点dp[0]初始化即可。考虑i = 1的情况，此时dp[1]由dp[0]推出，此时的条件是dp[0] && s[0]在字符字典中，因为是虚拟节点，只要s[0]在字典中即可，所以dp[0] = true。
+
+4. 返回值
+
+    dp[s.size()];
+
+```cpp{.line-numbers}
+class Solution {
+public:
+    bool wordBreak(string s, vector<string>& wordDict) {
+        // dp[i] i 位置是否可以成功拆分
+        unordered_set<string> hashtable(wordDict.begin(), wordDict.end());
+        vector<bool> dp(s.size() + 1, false);
+        dp[0] = true;
+        for(int i = 1; i <= s.size(); i++)
+        {
+            for(int j = 0; j < i; j++)
+            {
+                string word = s.substr(j, i - j);
+                if(dp[j] && hashtable.find(word) != hashtable.end())
+                    dp[i] = true;
+            }
+        }
+        return dp[s.size()];
+    }
+};
+```
