@@ -735,3 +735,77 @@ public:
     }
 };
 ```
+### 13. [打家劫舍 II](https://leetcode.cn/problems/house-robber-ii/) 2023.11.9
+
+#### 分析
+
+题目与打家劫舍一的区别在于：首尾相连，偷了一第一个位置的房屋则末尾的房屋不能再偷
+
+从第一个位置入手：
+
+- 如果偷i = 0，则 i = 1， i = n - 1位置的房屋不能偷，此时 [2, n-2]区间内的问题就是线性的打家劫舍一
+- 如果不偷i = 0， 则不需要考虑环形问题，此时问题转换为在[1, n-1]区间内进行线性的打家劫舍一的处理
+
+最后我们的结果就是上面两种情况的最大值
+
+虽然打家劫舍二套了一层环形的皮，但是通过分析会“出问题”的第一个位置的两种情况，可以把这样一个环形问题转化成两个线性的打家劫舍一来解决
+
+```cpp{.line-numbers}
+class Solution {
+public:
+    // 打家劫舍一
+    // 在[begin, end]的闭区间上进行打家劫舍一
+    int rob_1(const vector<int>& nums, int begin, int end)
+    {
+        int n = end - begin + 1;
+        if(n == 1)  return nums[begin];
+        vector<int> dp(n);
+        dp[0] = nums[begin];
+        dp[1] = max(nums[begin], nums[begin+1]);
+        for(int i = 2; i < n; i++)
+        {
+            dp[i] =  max(dp[i-2] + nums[begin + i], dp[i-1]);
+        }
+        return dp[n-1];
+    }
+
+    int rob(vector<int>& nums) {
+        int n = nums.size();
+        if(n <= 3)
+            return *max_element(nums.begin(), nums.end());
+        return max(nums[0] + rob_1(nums, 2, n-2), rob_1(nums, 1, n-1));
+    }
+};
+```
+
+### 14. [删除并获得点数](https://leetcode.cn/problems/delete-and-earn/) 2023.11.9
+
+通过将原始序列nums转化成序列值nums[i]为下标，下标对应数为num[i]总和的序列arr，将原问题转化为打家劫舍一问题
+
+```cpp{.line-numbers}
+class Solution {
+public:
+    // 打家劫舍一
+    // 在[begin, end]的闭区间上进行打家劫舍一
+    int rob_1(const vector<int>& nums, int begin, int end)
+    {
+        int n = end - begin + 1;
+        if(n == 1)  return nums[begin];
+        vector<int> dp(n);
+        dp[0] = nums[begin];
+        dp[1] = max(nums[begin], nums[begin+1]);
+        for(int i = 2; i < n; i++)
+        {
+            dp[i] =  max(dp[i-2] + nums[begin + i], dp[i-1]);
+        }
+        return dp[n-1];
+    }
+    int deleteAndEarn(vector<int>& nums) {
+        int n = *max_element(nums.begin(), nums.end());
+        vector<int> arr(n + 1);
+        for(const auto &e : nums)
+            arr[e] += e;
+        return rob_1(arr, 0, n);
+    }
+};
+```
