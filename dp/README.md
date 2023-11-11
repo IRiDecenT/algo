@@ -809,3 +809,103 @@ public:
     }
 };
 ```
+
+### 15. [粉刷房子](https://leetcode.cn/problems/JEj789/) 2023.11.11
+
+1. 状态表示
+
+开二维dp表，多状态dp，对于i位置的最小花费，可以细分为三种状态
+
+dp[i][0] 表示：i位置涂上红色的最小花费
+dp[i][1] 表示：i位置涂上蓝色的最小花费
+dp[i][2] 表示：i位置涂上绿色的最小花费
+
+
+2. 状态转移方程
+
+    dp[i][0] = cost[i][0] + min(dp[i-1][1], dp[i-1][2])
+    dp[i][1] = cost[i][1] + min(dp[i-1][0], dp[i-1][1])
+    dp[i][2] = cost[i][2] + min(dp[i-1][0], dp[i-1][1])
+
+3. 初始化
+
+    dp[i][0] = cost[i][0]
+    dp[i][1] = cost[i][1]
+    dp[i][2] = cost[i][2]
+
+    或者多开一行空间，用虚拟节点
+
+4. 填表顺序
+
+    从左到右从上往下
+
+5. 返回值
+
+    min(dp[i][0], dp[i][1], dp[i][2])
+
+```cpp{.line-numbers}
+class Solution {
+public:
+    int minCost(vector<vector<int>>& costs) {
+        int n = costs.size();
+        vector<vector<int>> dp(n + 1 , vector<int>(3, 0));
+        for(int i = 1; i <= n; i++)
+        {
+            dp[i][0] = costs[i-1][0] + min(dp[i-1][1], dp[i-1][2]);
+            dp[i][1] = costs[i-1][1] + min(dp[i-1][0], dp[i-1][2]);
+            dp[i][2] = costs[i-1][2] + min(dp[i-1][0], dp[i-1][1]);
+        }
+        return *min_element(dp[n].begin(), dp[n].end());
+    }
+};
+```
+
+### 16. [买卖股票的最佳时机含冷冻期](https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-with-cooldown/) 2023.11.11
+
+1. 状态表示
+
+    i天的最大利润有三种状态,定义：
+    dp[i][0] : 第i天**结束**，处于买入状态的最大利润
+    dp[i][0] : 第i天**结束**，处于可交易状态的最大利润。理解可交易：i天结束，手里没股票，后面**可以买**
+    dp[i][0] : 第i天**结束**，处于冷冻期状态的最大利润
+
+2. 状态转移方程
+
+    此处为一个状态机，三个状态都要考虑能否自己到自己，自己到其他，最好画出状态转换图，注意得不重不漏
+    dp[i][0] = max(dp[i-1][0], dp[i-1][1] - prices[i]) -> 第i天结束后处于买入状态有两种情况： i-1天结束处于买入状态，i天什么也不干 / i - 1天处于可交易状态，i天买入股票
+    dp[i][1] = max(dp[i-1][1], dp[i-1][2]) -> 第i天出狱可交易状态有两种情况：i-1天结束处于可交易，i天啥也不干， i-1天结束处于冻结状态，第i天被冻结啥也不干
+    dp[i][2] = dp[i][0] + prices[i] -> 第i天结束处于冷冻期有一种情况：i-1天结束处于买入状态，i天将股票卖出，i天结束进入冻结期（虽然i-1天结束后处于可交易状态）
+
+3. 初始化
+
+    dp[0][0] = -1 * prices[0];
+    dp[0][1] = 0;
+    dp[0][2] = 0;
+
+4. 填表顺序
+
+    左到右，上到下
+
+5. 返回值
+
+    max(dp[n-1][1], dp[n-1][2]) 因为最后一天结束如果处于买入状态一定不是最大利润，最后一天花出去的钱没有卖回来
+
+```cpp{.line-numbers}
+class Solution {
+public:
+    int maxProfit(vector<int>& prices) {
+        int n = prices.size();
+        vector<vector<int>> dp(n, vector<int>(3, 0));
+        dp[0][0] = -1 * prices[0];
+        dp[0][1] = 0;
+        dp[0][2] = 0;
+        for(int i = 1; i < n; i++)
+        {
+            dp[i][0] = max(dp[i-1][0], dp[i-1][1] - prices[i]);
+            dp[i][1] = max(dp[i-1][1], dp[i-1][2]);
+            dp[i][2] = dp[i-1][0] + prices[i];
+        }
+        return max(dp[n-1][1], dp[n-1][2]);
+    }
+};
+```
