@@ -910,7 +910,7 @@ public:
 };
 ```
 
-### 17.[买卖股票的最佳时期含手续费](https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-with-transaction-fee/)
+### 17.[买卖股票的最佳时期含手续费](https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-with-transaction-fee/) 2023.11.12
 
 1. 状态表示
 
@@ -941,4 +941,108 @@ public:
     dp[n-1][1] 最大利润一定是最后一天处于可交易状态
 
 
+### 18.[买卖股票的最佳时机 III](https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-iii/description/) 2023.11.13
 
+1. 状态表示
+
+    dp[i] : 第i天**结束之后**，所能获得的最大利润
+
+    第i天又有两种状态，买入（手里有股票）f[i] 和卖出（手里没股票）g[i]
+    将f[i] 扩展为f[i][j] j表示交易次数， g同理
+
+    f[i][j]: 第i天结束，完成了j笔交易，此时处于买入状态（手里有股票）的最大利润
+    g[i][j]: 第i天结束，完成了j笔交易，此时处于卖出状态（手里没有股票）的最大利润
+
+2. 状态转移方程
+
+    ![股票问题终极(任意n次数)状态转移图](img/股票问题终极(任意n次数).png)
+
+    f[i][j] = max(f[i-1][j], g[i-1][j] - prices[i])
+    g[i][j] = max(g[i-1][j], f[i-1][j-1] + prices[i])
+
+    从方程1:发现f和g只要初始化第一行
+    从方程2:发现f除了需要初始化第一行还要初始化第一列 j = 0 时 j = -1 显然不存在-1笔交易，所以此时的max值只能是g[i-1][j]
+
+    此时我们通过对状态转移方程进行一个微小的调整即可把这个初始化越界的问题解决
+
+    step1: g[i][j] = g[i-1][j]
+
+    step2: if(j - 1 >= 0) g[i][j] = max(g[i][j], f[i-1][j-1] + prices[i]) 即通过一个判断屏蔽掉交易次数为-1的情况
+
+3. 初始化
+
+    f[0][0] = -price[0], g[0][0] = 0
+
+    f[0][1...n] = 负无穷大，因为交易次数有限，第一天显然不能交易到多笔，设置为一个负无穷大，就不会干扰到求max
+
+    g[0][1...n] 同理设置为负无穷大，不干扰max
+
+    注意⚠️细节问题： 如果设置为INT_MIN， 对于方程1会有一个减的操作，对于一个int最小值再减去一个值，会下溢，对于检查严格的编译器会直接报错，对于检查不严格的编译器，下溢后会变成一个很大的值
+
+    所以此处我们选用的“负无穷大”设置为 负的0x3f3f3f3f，这是一个算法题常用的一个数
+    一般可以用来表示很大和很小的数，保证加上或者减去一些不是那么大或者小的数字不会溢出
+
+4. 填表顺序
+
+    左到右，上到下
+
+5. 返回值
+    max(g[n-1][0], g[n-1][1], g[n-1][2])
+
+```cpp{.line-numbers}
+class Solution {
+public:
+    int maxProfit(vector<int>& prices) {
+        int n = prices.size();
+        const int MAX_DEAL_NUM = 2;
+        const int NEG_INF = -0x3f3f3f3f;
+        vector<vector<int>> f(n, vector<int>(MAX_DEAL_NUM + 1, NEG_INF));
+        vector<vector<int>> g(f);
+        f[0][0] = -prices[0];
+        g[0][0] = 0;
+        for(int i = 1; i < n; i++)
+        {
+            for(int j = 0; j < MAX_DEAL_NUM + 1; j++)
+            {
+                f[i][j] = max(f[i-1][j], g[i-1][j] - prices[i]);
+                g[i][j] = g[i-1][j];
+                if(j - 1 >= 0)
+                    g[i][j] = max(g[i][j], f[i-1][j-1] + prices[i]);
+            }
+        }
+        return *max_element(g[n-1].begin(), g[n-1].end());
+    }
+};
+```
+
+注： 这里给出了一个股票问题通解，可以通过修改MAX_DEAL_NUM来实现最多n笔的股票问题
+
+### 19. [买卖股票的最佳时机 IV](https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-iv/submissions/)
+
+分析同上题一毛一样，并且上题给出了通解，将MAX_DEAL_NUM修改成k这道题就过了
+
+```cpp{.line-numbers}
+class Solution {
+public:
+    int maxProfit(int k, vector<int>& prices) {
+        int n = prices.size();
+        const int MAX_DEAL_NUM = k;
+        const int NEG_INF = -0x3f3f3f3f;
+        vector<vector<int>> f(n, vector<int>(MAX_DEAL_NUM + 1, NEG_INF));
+        vector<vector<int>> g(f);
+        f[0][0] = -prices[0];
+        g[0][0] = 0;
+        for(int i = 1; i < n; i++)
+        {
+            for(int j = 0; j < MAX_DEAL_NUM + 1; j++)
+            {
+                f[i][j] = max(f[i-1][j], g[i-1][j] - prices[i]);
+                g[i][j] = g[i-1][j];
+                if(j - 1 >= 0)
+                    g[i][j] = max(g[i][j], f[i-1][j-1] + prices[i]);
+            }
+        }
+        return *max_element(g[n-1].begin(), g[n-1].end());
+    }
+};
+```
