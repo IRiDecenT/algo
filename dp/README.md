@@ -1046,3 +1046,44 @@ public:
     }
 };
 ```
+
+### 20. [最大子数组和](https://leetcode.cn/problems/maximum-subarray/) 2023.11.14
+
+1. 状态表示
+
+    dp[i] 表示: 以**i位置结尾**的**所有子数组**中的**最大和**
+
+2. 状态转移方程
+
+    dp[i] 所有子数组分为长度为1的子数组(nums[i]) 与 长度大于1的子数组（以i-1为结尾 + nums[i]）
+    而dp[i-1]表示以i-1结尾的子数组的最大和
+
+    那么状态转移方程呼之欲出 ： dp[i] = max(nums[i], nums[i] + dp[i-1])
+
+3. 初始化
+
+    dp[0] = nums[0]
+
+4. 填表顺序
+
+    左到右，线性dp
+
+5. 返回值
+
+    max(dp[0:n])
+
+```cpp{.line-numbers}
+class Solution {
+public:
+    int maxSubArray(vector<int>& nums) {
+        int n = nums.size();
+        vector<int> dp(n);
+        dp[0] = nums[0];
+        for(int i = 1; i < n; i++)
+        {
+            dp[i] = max(dp[i-1] + nums[i], nums[i]);
+        }
+        return *max_element(dp.begin(), dp.end());
+    }
+};
+```
