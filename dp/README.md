@@ -1087,3 +1087,49 @@ public:
     }
 };
 ```
+
+
+### 21. [环形子数组的最大和](https://leetcode.cn/problems/maximum-sum-circular-subarray/) 2023.11.16
+
+分析：
+![](./img/T21.PNG)
+
+由于连续子数组允许成环，很容易联想到我们前面做过的打家劫舍系列问题，将成环的问题分成两个线性问题
+
+最大连续的子数组无非两种情况：
+
+1. 在数组内部（不成环）， 这种情况就是前面一题的解决方案
+2. 数组头尾的部分（成环）， 这种情况下，我们曲线救国，对于此时头尾的和最大，又由于我们的数组元素和为定值，那么对于数组刨去头尾的部分就是情况1，只不过此时和为最小值
+
+按照不成环的情况dp做出连续子数组和的最小值minVal与mamVal，求max(maxVal, sum - minVal)即可
+
+```cpp{.line-numbers}
+class Solution {
+public:
+    // 求连续不成环子数组的最大和或者最小和，function
+    int dpSubarrayLinar(vector<int>& nums, function<int(int, int)> f)
+    {
+        int n = nums.size();
+        vector<int> dp(n);
+        dp[0] = nums[0];
+        for(int i = 1; i < n; i++)
+        {
+            dp[i] = f(nums[i], dp[i-1] + nums[i]);
+        }
+        int ret = dp[0];
+        for(int i = 1; i < n; i++)
+            ret = f(ret, dp[i]);
+        return ret;
+    }
+    int maxSubarraySumCircular(vector<int>& nums) {
+        int minVal = dpSubarrayLinar(nums, [](int a, int b){ return min(a, b);});
+        int maxVal = dpSubarrayLinar(nums, [](int a, int b){ return max(a, b);});
+        int sum = 0;
+        for(auto e : nums)
+            sum += e;
+        return max( minVal < sum ? sum - minVal : -0x3f3f3f3f, maxVal);
+    }
+};
+```
+
+### 22.[]()
