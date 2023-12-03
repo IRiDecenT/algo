@@ -1132,4 +1132,10 @@ public:
 };
 ```
 
-### 22.[]()
+### 22.[乘积最大子数组](https://leetcode.cn/problems/maximum-product-subarray/) 2023.11.16
+
+1. 状态表示
+2. 状态转移方程
+3. 初始化
+4. 填表顺序
+5. 返回值
